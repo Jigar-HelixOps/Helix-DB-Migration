@@ -11,24 +11,11 @@ display_name = '{{APP_SERVER_HOST}}'
 where
 host_name = '{{OLD_APP_SERVER_HOST}}';
 
-/* update application_server set
-host_name = '{{APP_SERVER_HOST}}',
-app_server_name = '{{PXE_SERVER_HOST}}',
-display_name = '{{PXE_SERVER_HOST}}'
-where
-application_server_id = 2; */
-
 update application_server_model set
 name = '{{APP_SERVER_HOST}}',
 display_name = '{{APP_SERVER_HOST}}'
 where
 name = '{{OLD_APP_SERVER_HOST}}';
-
-/* update application_server_model set
-name = '{{PXE_SERVER_HOST}}',
-display_name = '{{PXE_SERVER_HOST}}'
-where
-application_server_model_id = 2; */
 
 update application_server_deployments
 set host_name = '{{APP_SERVER_HOST}}';
