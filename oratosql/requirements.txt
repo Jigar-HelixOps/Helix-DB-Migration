@@ -1,7 +1,0 @@
-# Prefer Python 3.8+ when available.
-# On Python 3.6, upgrade pip first (see README) so wheels install instead of source builds.
-oracledb==1.4.2
-pyodbc>=4.0.35,<5.0.0; python_version < "3.7"
-pyodbc>=4.0.35; python_version >= "3.7"
-PyYAML==5.4.1; python_version < "3.7"
-PyYAML>=5.4; python_version >= "3.7"
