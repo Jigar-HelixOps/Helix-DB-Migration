@@ -1,0 +1,36 @@
+# Optional column mappings for source -> PostgreSQL migration.
+# Reference from config.yaml:
+#   migrate:
+#     column_mapping_file: ./column_mapping.yaml
+#
+# global_columns apply to every table unless overridden in tables.<name>.
+# SQL Server -> PostgreSQL: lib_partition_* columns are auto-derived from
+# date_created when possible. Override here only if your schema differs.
+
+# Optional overrides if auto-detect cannot find a source date column:
+# global_columns:
+#   lib_partition_result_date:
+#     target: lib_partition_result_date
+#     expression: "CAST([your_date_column] AS date)"
+#   lib_partition_event_date:
+#     target: lib_partition_event_date
+#     expression: "CAST([start_time] AS date)"
+
+global_columns: {}
+
+tables:
+  delete_errors:
+    error_action: action
+    error_message: message
+
+  delete_layer_types:
+    layer_type_name: name
+
+  delete_task_types:
+    task_type_name: name
+
+  # Preserve single-space values that SQL Server/pyodbc may export as empty strings.
+  system_property:
+    value:
+      target: value
+      expression: "CASE WHEN CAST(value AS NVARCHAR(MAX)) IS NULL THEN NULL WHEN LTRIM(RTRIM(CAST(value AS NVARCHAR(MAX)))) = N'' THEN N' ' ELSE CAST(value AS NVARCHAR(MAX)) END"

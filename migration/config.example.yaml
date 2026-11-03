@@ -1,0 +1,73 @@
+# Copy to config.yaml and update connection details.
+# Then run: python -m oracle_pg_migrate
+
+# Source database type: oracle or sqlserver
+source:
+  type: oracle
+
+oracle:
+  user: oracle_user
+  password: oracle_password
+  dsn: localhost:1521/ORCLPDB1
+  schema: HR
+
+sqlserver:
+  host: localhost
+  port: 1433
+  database: mydb
+  user: sa
+  password: sqlserver_password
+  schema: dbo
+  driver: "ODBC Driver 17 for SQL Server"   # optional
+  # connection_string: "DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=mydb;UID=sa;PWD=secret;TrustServerCertificate=yes"
+  trust_server_certificate: true
+
+postgres:
+  host: localhost
+  port: 5432
+  database: mydb
+  user: postgres_user
+  password: postgres_password
+  schema: public
+
+migrate:
+  tables: []
+  exclude_tables: []   # also skips sequence/IDENTITY sync for these tables
+  lowercase_columns: true
+  column_mapping_file: ./column_mapping.yaml   # optional source->postgres column mapping
+  partition_column_handling: true   # false for DW: skip lib_partition_* autodetect
+
+  # Data load options for schemas with existing constraints/triggers/core data
+  truncate_before_import: true
+  truncate_all_before_migration: true   # truncate all matching tables once before load
+  truncate_cascade: true                  # required when FKs exist between tables
+  truncate_cascade_single_table: false    # --table mode: use DELETE instead of TRUNCATE CASCADE
+  restart_identity: true                  # reset serial/identity columns after truncate
+  disable_triggers: true                  # disable triggers during load
+  disable_foreign_keys: true              # disable FK checks during load
+  disable_row_security: true              # disable RLS during load (if used)
+  analyze_after_migration: true           # update table statistics after load
+  validate_constraints_after_migration: true  # validate FK/UNIQUE/NOT NULL after load
+  sync_sequences_after_migration: true        # align PostgreSQL sequences with source DB
+
+export:
+  output_dir: ./export_data
+  fetch_size: 10000
+  quote_nonnumeric: true   # quote text fields (required for carriage returns in CSV)
+
+import:
+  use_copy: true
+
+logging:
+  log_dir: ./logs
+
+# Runs post_mig.sql on PostgreSQL after data load + sequence sync.
+# APP_SERVER_HOST = new Postgres app server host
+# PXE_SERVER_HOST = new PXE server host
+# OLD_APP_SERVER_HOST = hostname from source Oracle/SQL Server app server
+post_migration:
+  enabled: true
+  sql_file: ./post_mig.sql
+  app_server_host: bcx-pun-ea66409
+  pxe_server_host: bcx-pun-ea66409_pxe
+  old_app_server_host: p0app2k16

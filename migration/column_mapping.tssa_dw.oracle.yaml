@@ -1,0 +1,19 @@
+# TSSA-DW: Oracle -> PostgreSQL column mappings (add entries as you find mismatches).
+# Use with config.tssa_dw.yaml:
+#   migrate:
+#     column_mapping_file: ./column_mapping.tssa_dw.oracle.yaml
+#
+# Mapping format:  source_column: postgres_column
+# Target names should match PostgreSQL exactly when identifiers are quoted
+# (e.g. "USER", "Select Option"). The migrator always uses the exact PG
+# catalog name for COPY, so mixed-case / spaced columns are preserved.
+#
+# If Oracle and PostgreSQL names match case-insensitively, no mapping is needed.
+
+global_columns: {}
+
+tables:
+  # Oracle USER / "USER" -> PostgreSQL "USER" (usually needs no mapping once
+  # catalog names are preserved; keep only if source name differs).
+  stg_compliance_rule_result:
+    result_id: job_result_id

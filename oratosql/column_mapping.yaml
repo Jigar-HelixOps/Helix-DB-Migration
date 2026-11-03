@@ -1,0 +1,20 @@
+# Optional Oracle -> SQL Server column mappings.
+# Format: oracle_source_column: sqlserver_target_column
+#
+# migrate:
+#   column_mapping_file: ./column_mapping.yaml
+
+global_columns: {}
+
+tables:
+  # Oracle MESSAGE/ACTION -> SQL Server error_message/error_action
+  delete_errors:
+    message: error_message
+    action: error_action
+
+  # Oracle NAME -> SQL Server layer_type_name / task_type_name
+  delete_layer_types:
+    name: layer_type_name
+
+  delete_task_types:
+    name: task_type_name

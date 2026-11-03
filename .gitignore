@@ -1,0 +1,36 @@
+# Virtual environments
+.venv/
+venv/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+
+# Secrets / local connection configs (keep *.example.yaml)
+.env
+.env.*
+**/config.yaml
+**/config.tssa_dw.yaml
+!**/config.example.yaml
+!**/config.tssa_dw.example.yaml
+
+# Runtime outputs
+**/logs/
+**/export_data/
+**/export_data_tssa_dw/
+*.log
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local scratch / one-off dumps
+migration/migrate_*_tables.csv
+migration/bladelogic_system_property.csv
+
+# Accidental pip leftover filenames
+migration/=*
