@@ -1,0 +1,70 @@
+# Copy to config.yaml and update connection details.
+# Then run: python -m oracle_pg_migrate
+
+# Source database type: oracle or sqlserver
+source:
+  type: sqlserver
+  
+oracle:
+  user: bladelogic
+  password: bmcAdm1n
+  dsn: ora19c
+  schema: bladelogic
+  
+sqlserver:
+  host: p0app2k16
+  port: 1433
+  database: p0app2k16
+  user: sa
+  password: bmcAdm1n
+  schema: dbo
+  driver: "ODBC Driver 17 for SQL Server"   # optional
+  # connection_string: "DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=mydb;UID=sa;PWD=secret;TrustServerCertificate=yes"
+  trust_server_certificate: true  
+
+postgres:
+  host: bcx-pun-bdf5484
+  port: 5432
+  database: tssapg
+  user: tssarole
+  password: password
+  schema: tssaschema
+
+migrate:
+  # Leave empty to migrate all tables that exist in both schemas with the same name.
+  tables: []
+  exclude_tables: []
+  truncate_before_import: true
+  truncate_all_before_migration: true
+  truncate_cascade: true
+  restart_identity: true
+  disable_triggers: true
+  disable_foreign_keys: true
+  disable_row_security: true
+  analyze_after_migration: true
+  lowercase_columns: true
+  validate_constraints_after_migration: false
+  sync_sequences_after_migration: true
+  # column_mapping_file: ./column_mapping.sqlserver.yaml --SQL Server
+  column_mapping_file: ./column_mapping.sqlserver.yaml
+  truncate_cascade_single_table: false   # default; protects related tables in --table mode
+  
+export:
+  output_dir: ./export_data
+  fetch_size: 50000
+  quote_nonnumeric: true
+
+import:
+  use_copy: true
+  batch_size: 10000
+  
+logging:
+  log_dir: ./logs
+  
+# Runs post_mig.sql on PostgreSQL after data load + sequence sync.
+post_migration:
+  enabled: true
+  sql_file: ./post_mig.sql
+  app_server_host: bcx-pun-ea66409
+  pxe_server_host: bcx-pun-ea66409_pxe
+  old_app_server_host: p0app2k16 

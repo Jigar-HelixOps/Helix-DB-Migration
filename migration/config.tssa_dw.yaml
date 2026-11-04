@@ -1,0 +1,66 @@
+# TSSA-DW warehouse migration (copy to config.tssa_dw.yaml and edit).
+# Oracle -> PostgreSQL first; use a separate config from TSSA OLTP.
+#
+#   cp config.tssa_dw.example.yaml config.tssa_dw.yaml
+#   python -m oracle_pg_migrate -c config.tssa_dw.yaml --list-tables
+
+source:
+  type: sqlserver
+
+oracle:
+  user: TSSADW_DW
+  password: sa
+  dsn: ora19c
+  schema: TSSADW_DW          # Oracle DW schema name
+  
+sqlserver:
+  host: clm-pun-vufh5d
+  port: 1433
+  database: TSSADW_DW
+  user: sa
+  password: bmcAdm1n
+  schema: dbo
+  driver: "ODBC Driver 17 for SQL Server"   # optional
+  # connection_string: "DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=mydb;UID=sa;PWD=secret;TrustServerCertificate=yes"
+  trust_server_certificate: true  
+  
+postgres:
+  host: bcx-pun-bdf5484.bmc.com
+  port: 5432
+  database: dwpg409
+  user: dwrole
+  password: password
+  schema: dwschema            # PostgreSQL DW schema
+
+migrate:
+  tables: []
+  exclude_tables: []
+  lowercase_columns: true
+  column_mapping_file: ./column_mapping.tssa_dw.oracle.yaml
+  partition_column_handling: false   # TSSA-DW has no lib_partition_* columns
+
+  truncate_before_import: true
+  truncate_all_before_migration: true
+  truncate_cascade: true
+  truncate_cascade_single_table: false
+  restart_identity: true
+  disable_triggers: true
+  disable_foreign_keys: true
+  disable_row_security: true
+  analyze_after_migration: true
+  validate_constraints_after_migration: false
+  sync_sequences_after_migration: true
+
+export:
+  output_dir: ./export_data_tssa_dw
+  fetch_size: 10000
+  quote_nonnumeric: true
+
+import:
+  use_copy: true
+
+logging:
+  log_dir: ./logs_tssa_dw
+
+post_migration:
+  enabled: false
