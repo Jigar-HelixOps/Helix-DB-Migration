@@ -1,5 +1,5 @@
-oracledb>=1.4.0,<2.0.0
-pyodbc>=4.0.35
-psycopg2-binary==2.9.5; python_version < "3.7"
-psycopg2-binary>=2.9.9; python_version >= "3.7"
-PyYAML>=5.4
+# Python 3.14+ (tested with 3.14.10)
+oracledb>=26.0.0
+pyodbc>=5.3.0
+psycopg2-binary>=2.9.11
+PyYAML>=6.0.2
