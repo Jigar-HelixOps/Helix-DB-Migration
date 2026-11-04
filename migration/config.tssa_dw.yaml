@@ -8,29 +8,29 @@ source:
   type: sqlserver
 
 oracle:
-  user: TSSADW_DW
-  password: sa
+  user: myuser
+  password: password
   dsn: ora19c
-  schema: TSSADW_DW          # Oracle DW schema name
+  schema: myschema          # Oracle DW schema name
   
 sqlserver:
-  host: clm-pun-vufh5d
+  host: dbserver
   port: 1433
-  database: TSSADW_DW
+  database: mydb
   user: sa
-  password: bmcAdm1n
+  password: password
   schema: dbo
   driver: "ODBC Driver 17 for SQL Server"   # optional
   # connection_string: "DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=mydb;UID=sa;PWD=secret;TrustServerCertificate=yes"
   trust_server_certificate: true  
   
 postgres:
-  host: bcx-pun-bdf5484.bmc.com
+  host: dbserver
   port: 5432
-  database: dwpg409
-  user: dwrole
+  database: mydb
+  user: myuser
   password: password
-  schema: dwschema            # PostgreSQL DW schema
+  schema: myschema            # PostgreSQL DW schema
 
 migrate:
   tables: []
