@@ -6,29 +6,29 @@ source:
   type: sqlserver
   
 oracle:
-  user: bladelogic
-  password: bmcAdm1n
+  user: myuser
+  password: password
   dsn: ora19c
-  schema: bladelogic
+  schema: myschema
   
 sqlserver:
-  host: p0app2k16
+  host: DBServer
   port: 1433
-  database: p0app2k16
+  database: mydb
   user: sa
-  password: bmcAdm1n
+  password: password
   schema: dbo
   driver: "ODBC Driver 17 for SQL Server"   # optional
   # connection_string: "DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=mydb;UID=sa;PWD=secret;TrustServerCertificate=yes"
   trust_server_certificate: true  
 
 postgres:
-  host: bcx-pun-bdf5484
+  host: DBServer
   port: 5432
-  database: tssapg
-  user: tssarole
+  database: mydb
+  user: myuser
   password: password
-  schema: tssaschema
+  schema: myschema
 
 migrate:
   # Leave empty to migrate all tables that exist in both schemas with the same name.
@@ -65,6 +65,6 @@ logging:
 post_migration:
   enabled: true
   sql_file: ./post_mig.sql
-  app_server_host: bcx-pun-ea66409
-  pxe_server_host: bcx-pun-ea66409_pxe
-  old_app_server_host: p0app2k16 
+  app_server_host: pghostname
+  pxe_server_host: pghostname_pxe
+  old_app_server_host: Sqlhostname
