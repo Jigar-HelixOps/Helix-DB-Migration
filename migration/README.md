@@ -4,59 +4,189 @@ Standalone utility to migrate data from **Oracle** or **SQL Server** to PostgreS
 
 ## Prerequisites
 
-- Python 3.6+ (3.10+ recommended)
-- Network access to source database and PostgreSQL
-- Tables already created in PostgreSQL with the same names as source (case-insensitive match)
-- Source schema and `postgres.schema` configured
-- For SQL Server: ODBC Driver 17 (or 18) for SQL Server installed on the migration host
+### Required on all platforms
 
-## Setup
+| Requirement | Notes |
+|-------------|--------|
+| **Python 3.14.x** | Tested with **3.14.10**. Use 3.14+ so `oracledb`, `psycopg2-binary`, and `pyodbc` install from prebuilt wheels. |
+| **pip** | Comes with Python; upgrade inside the venv before installing deps. |
+| **Network access** | Migration host must reach the source DB and PostgreSQL. |
+| **PostgreSQL tables** | Target tables must already exist (same names as source, case-insensitive). |
+| **Config** | Source schema and `postgres.schema` set in YAML (or env overrides). |
 
-```powershell
-cd migration
+### Source-specific
 
-linux - source .venv/bin/activate
-windows  - .\.venv\Scripts\Activate.ps1
-python -m venv .venv
-python -m pip install -r requirements.txt
-copy config.example.yaml config.yaml
+| Source | Extra prerequisite |
+|--------|--------------------|
+| **Oracle** | None for Thin mode (default). Instant Client is optional (Thick mode only). |
+| **SQL Server** | [ODBC Driver 17 or 18 for SQL Server](https://learn.microsoft.com/sql/connect/odbc/download-odbc-driver-for-sql-server) on the migration host. |
 
+### Python packages (from `requirements.txt`)
 
-ModuleNotFoundError: No module named 'yaml'
+- `oracledb` ≥ 26.0.0 (prebuilt wheels for Python 3.14; no C compiler needed)  
+- `psycopg2-binary` ≥ 2.9.11  
+- `pyodbc` ≥ 5.3.0 (SQL Server only)  
+- `PyYAML` ≥ 6.0.2  
 
-The virtual environment is missing PyYAML. Install the dependencies again:
+---
 
-cd /home/jigar-mig/migration
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-Then verify:
+## Installation
 
-python -c "import yaml; print('PyYAML OK')"
-Run migration again:
+### Windows
 
-python -m oracle_pg_migrate -v
-If pip install fails, install packages individually:
+1. Install **Python 3.14.10** from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**.
+2. (SQL Server only) Install **ODBC Driver 17 or 18 for SQL Server**.
+3. Open a terminal in the `migration` folder. Use **either** Command Prompt **or** PowerShell (commands differ).
 
-python -m pip install oracledb==1.4.2 psycopg2-binary==2.9.5 PyYAML==6.0.1
-If the venv looks broken, recreate it:
+#### Option A — Command Prompt (`cmd.exe`)
 
-cd /home/jigar-mig/migration
-deactivate 2>/dev/null || true
-rm -rf .venv
-python3 -m venv .venv
-source .venv/bin/activate
+Prompt looks like: `C:\jigar-mig\migration>`
+
+```bat
+cd /d C:\jigar-mig\migration
+
+py -3.14 --version
+
+py -3.14 -m venv .venv
+.venv\Scripts\activate.bat
+
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
-python -m oracle_pg_migrate -v
+python -m pip install --only-binary=:all: -r requirements.txt
 
-# Full TSSA load
+python -c "import oracledb, psycopg2, yaml; print('OK')"
+
+copy config.example.yaml config.yaml
+```
+
+Edit `config.yaml`, then run (cmd or PowerShell, with venv active):
+
+```bat
 python -m oracle_pg_migrate -c config.yaml -v
 
-# Full DW load
-python -m oracle_pg_migrate -c config.tssa_dw.yaml -v
+When the venv is active, the prompt usually starts with `(.venv)`. To leave it later: `deactivate`
 
+#### Option B — PowerShell
+
+Prompt looks like: `PS C:\jigar-mig\migration>`
+
+```powershell
+cd C:\jigar-mig\migration
+
+py -3.14 --version
+
+py -3.14 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# If activation is blocked:
+# Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --only-binary=:all: -r requirements.txt
+
+python -c "import oracledb, psycopg2, yaml; print('OK')"
+
+copy config.example.yaml config.yaml
 ```
+
+Edit `config.yaml`, then run (cmd or PowerShell, with venv active):
+
+```bat
+python -m oracle_pg_migrate -c config.yaml -v
+```
+
+### Linux
+
+1. Install **Python 3.14** (example with deadsnakes on Ubuntu/Debian):
+
+```bash
+sudo apt update
+sudo apt install -y python3.14 python3.14-venv python3.14-dev
+```
+
+On RHEL/Rocky, use your distro’s Python 3.14 packages or build from source if needed.
+
+2. (SQL Server only) Install the Microsoft ODBC driver, e.g.:
+
+```bash
+# See Microsoft docs for your distro; example pattern:
+# curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+# ... then: sudo apt install msodbcsql18
+```
+
+3. Create the venv and install deps:
+
+```bash
+cd migration
+
+python3.14 --version   # expect 3.14.x
+
+python3.14 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --only-binary=:all: -r requirements.txt
+
+python -c "import oracledb, psycopg2, yaml; print('OK')"
+# SQL Server only:
+# python -c "import pyodbc; print('pyodbc OK')"
+
+cp config.example.yaml config.yaml
+```
+
+Edit `config.yaml`, then run:
+
+```bash
+python -m oracle_pg_migrate -c config.yaml -v
+# DW example:
+# python -m oracle_pg_migrate -c config.tssa_dw.yaml -v
+```
+
+### Recreate a broken venv
+
+**Windows — Command Prompt:**
+
+```bat
+deactivate
+rmdir /s /q .venv
+py -3.14 -m venv .venv
+.venv\Scripts\activate.bat
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --only-binary=:all: -r requirements.txt
+```
+
+**Windows — PowerShell:**
+
+```powershell
+deactivate
+Remove-Item -Recurse -Force .venv
+py -3.14 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --only-binary=:all: -r requirements.txt
+```
+
+**Linux:**
+
+```bash
+deactivate 2>/dev/null || true
+rm -rf .venv
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --only-binary=:all: -r requirements.txt
+```
+
+### Common install issues
+
+| Symptom | Fix |
+|---------|-----|
+| `'Remove-Item' is not recognized` / `'deactivate' is not recognized` | You are in **cmd**, not PowerShell. Use `rmdir /s /q .venv` and activate with `.venv\Scripts\activate.bat` first (then `deactivate` works). |
+| `Activate.ps1` does nothing in cmd | In cmd use `.venv\Scripts\activate.bat`, not `Activate.ps1`. |
+| `Microsoft Visual C++ 14.0 or greater is required` / Building wheel for oracledb | pip tried to **compile** instead of using a wheel. Do **not** install Build Tools. Upgrade pip, then: `python -m pip install --upgrade --only-binary=:all: "oracledb>=26.0.0"` |
+| `ModuleNotFoundError: No module named 'yaml'` (or `oracledb` / `psycopg2`) | Activate the venv, then `python -m pip install --only-binary=:all: -r requirements.txt` |
+| `pip` builds from source / compiler errors on 3.14 | Confirm `python --version` is 3.14.x (64-bit); upgrade pip; install with `--only-binary=:all:` |
+| Wrong Python used | Windows: `py -3.14 ...` · Linux: `python3.14 ...` — recreate the venv with that interpreter |
+| SQL Server: `pyodbc` / driver errors | Install ODBC Driver 17/18 and match `sqlserver.driver` in `config.yaml` |
 
 Edit `config.yaml` with your source and PostgreSQL connection details.
 
@@ -121,7 +251,7 @@ python -m oracle_pg_migrate --list-tables
 Migrate a single table:
 
 ```powershell
-python -m oracle_pg_migrate --table employees
+python -m oracle_pg_migrate --table MyTable
 ```
 
 Truncate PostgreSQL tables before loading:
@@ -140,7 +270,7 @@ Validate constraints only (no migration):
 
 ```powershell
 python -m oracle_pg_migrate --validate-only
-python -m oracle_pg_migrate --validate-only --table employees
+python -m oracle_pg_migrate --validate-only --table MyTable
 ```
 
 Sync sequences only (no data migration):
@@ -247,8 +377,8 @@ GRANT SET ON PARAMETER session_replication_role TO tssa_login_user;
 
 ## Example
 
-Oracle schema `HR` has `EMPLOYEES` and `DEPARTMENTS`.  
-PostgreSQL schema `public` has `employees` and `departments`.
+Oracle schema `HR` has `MyTable` and `DEPARTMENTS`.  
+PostgreSQL schema `public` has `mytable` and `departments`.
 
 ```powershell
 python -m oracle_pg_migrate
@@ -258,13 +388,13 @@ Output:
 
 ```
 Migrated 2 table(s), 1500 total rows
-  EMPLOYEES: 1200 rows
+  MyTable: 1200 rows
   DEPARTMENTS: 300 rows
 ```
 
 ## How it works
 
-- Table names are matched case-insensitively (`EMPLOYEES` = `employees`)
+- Table names are matched case-insensitively (`MyTable` = `mytable`)
 - Column headers are lowercased by default for PostgreSQL compatibility
 - Data is exported in batches and loaded with PostgreSQL `COPY` for speed
 - CSV files are saved under `export_data/` for review
