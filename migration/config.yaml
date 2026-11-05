@@ -1,6 +1,3 @@
-# Copy to config.yaml and update connection details.
-# Then run: python -m oracle_pg_migrate
-
 # Source database type: oracle or sqlserver
 source:
   type: sqlserver
