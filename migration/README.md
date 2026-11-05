@@ -313,19 +313,6 @@ Check `logs/migrate_*_sequences.csv` for `source_kind=identity` and sources like
 
 If an identity column is not synced, confirm the PG sequence is linked to the column, the SQL Server table has IDENTITY on the mapped source column, and add a `column_mapping.yaml` entry when names differ.
 
-## Partition columns (SQL Server → PostgreSQL)
-
-Oracle TSSA adds `lib_partition_result_date` / `lib_partition_event_date` via `lib_partition.sql`. SQL Server partitions on existing columns (usually `date_created`) and does not add those `lib_*` names.
-
-Resolution order for `lib_partition_result_date` / `lib_partition_event_date`:
-
-1. Same column name on the source (typical **Oracle** after `lib_partition.sql`)
-2. Column mapping / `global_columns` in YAML
-3. Auto-map from source date/datetime columns (typical **SQL Server**)
-4. If still no source — **skip** the PostgreSQL partition column (no error); COPY omits that column and PostgreSQL applies a column default if one exists
-
-Override in `column_mapping.yaml` under `global_columns` if your schema uses a different source column.
-
 **Quoted / mixed-case PostgreSQL columns** (e.g. `"USER"`, `"Select Option"`): export and COPY always use the exact name from the PostgreSQL catalog. Do not rely on `lowercase_columns` for those; map `source: ExactPgName` only when Oracle and PostgreSQL names differ.
 
 ## Config options
