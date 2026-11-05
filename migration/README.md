@@ -13,6 +13,7 @@ Standalone utility to migrate data from **Oracle** or **SQL Server** to PostgreS
 | **Network access** | Migration host must reach the source DB and PostgreSQL. |
 | **PostgreSQL tables** | Target tables must already exist (same names as source, case-insensitive). |
 | **Config** | Source schema and `postgres.schema` set in YAML (or env overrides). |
+| **Run as postgres superuser** | GRANT SET ON PARAMETER session_replication_role TO tssa_login_user;
 
 ### Source-specific
 
