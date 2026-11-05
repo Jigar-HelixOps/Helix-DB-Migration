@@ -200,7 +200,7 @@ oracle:
   user: oracle_user
   password: oracle_password
   dsn: ora19c
-  schema: BLADELOGIC
+  schema: user
 ```
 
 ### SQL Server source
@@ -230,7 +230,7 @@ Environment variable overrides:
 ## Migrate everything in one go
 
 ```powershell
-python -m oracle_pg_migrate
+python -m oracle_pg_migrate -c config.yaml -v
 ```
 
 That will:
@@ -289,9 +289,9 @@ Configure in `config.yaml`:
 post_migration:
   enabled: true
   sql_file: ./post_mig.sql
-  app_server_host: bcx-pun-ea66409       # new Postgres app server host
-  pxe_server_host: bcx-pun-ea66409_pxe   # new PXE server host
-  old_app_server_host: p0app2k16         # source Oracle/SQL Server app hostname
+  app_server_host: pghostname       # new Postgres app server host
+  pxe_server_host: pghostname_pxe   # new PXE server host
+  old_app_server_host: sqlhostname         # source Oracle/SQL Server app hostname
 ```
 
 The `system_property` update (`DatabaseType = Postgres`) stays hardcoded in `post_mig.sql`. Set `post_migration.enabled: false` to skip.
